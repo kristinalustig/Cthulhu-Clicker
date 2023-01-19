@@ -6,6 +6,8 @@ local titleScreen
 local symbolFont
 local gameFont
 local gameFontSm
+local labelFont
+local labelFontSm
 local cthulhuBar
 local scrollBar
 local frame
@@ -30,6 +32,7 @@ local cbAnim
 
 local goalNum
 local cbIncr
+local percentIncr
 
 function C.init()
   
@@ -43,6 +46,8 @@ function C.init()
   symbolFont = lg.newImageFont("/assets/symbol-font.png", "abcdefghijklmnopqrstuvwxyz ")
   gameFont = lg.newFont("/assets/Marhey-Bold.ttf", 26)
   gameFontSm = lg.newFont("/assets/Marhey-Bold.ttf", 14)
+  labelFont = lg.newFont("/assets/TitilliumWeb-Bold.ttf", 20)
+  labelFontSm = lg.newFont("/assets/TitilliumWeb-Regular.ttf", 13)
   
   InitButtonQuads()
   InitProgressQuads()
@@ -60,6 +65,7 @@ function C.init()
   cthulhuBarProgress = 1
   goalNum = 10000
   cbIncr = goalNum / 40
+  percentIncr = .1
   
   actions = {}
   
@@ -168,12 +174,23 @@ function C.draw()
   
   for k, v in pairs(actions) do
     lg.draw(buttonSprites, buttonQuads[v.quad + v.modValue], v.x, v.y)
+    if v.isEnabled and v.quad ~= 1 then
+      local modifier = 0
+      if v.quad == actions.dig.quad then
+        modifier = 4
+      end
+      lg.setFont(labelFontSm)
+      lg.printf(math.floor(0-v.cost), v.x + 220 + modifier, v.y + 82, 50, "left")
+    elseif v.quad ~= 1 then
+      lg.setFont(labelFont)
+      lg.printf("unlock at "..math.ceil(v.cost).. " influence", v.x, v.y+50, 288, "center")
+    end
   end
   
   lg.draw(powerBackground, powerQuads[pqAnim], 260, 240)
   lg.setFont(gameFont)
   lg.setColor(131/255, 49/255, 33/455)
-  lg.printf("influence: "..pointTotal, 260, 270, 268, "center")
+  lg.printf("influence: "..math.floor(pointTotal), 260, 270, 268, "center")
   lg.setFont(gameFontSm)
   lg.printf("+ "..incrPerSec.." per second", 260, 300, 268, "center")
   lg.reset()
@@ -196,6 +213,7 @@ function C.mousePressed(mx, my)
       T.addToTotal(0-v.cost)
       if v.quad ~= 1 then
         v.numInPlay = v.numInPlay + 1
+        v.cost = v.cost + (v.cost * percentIncr)
       else
         T.addToTotal(v.incr)
       end
