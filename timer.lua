@@ -45,6 +45,8 @@ function T.setIncrPerSec(n)
   
   incrPerSec = n
   
+  return n
+  
 end
 
 function T.getTotal()

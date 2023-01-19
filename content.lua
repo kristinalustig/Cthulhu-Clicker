@@ -5,6 +5,7 @@ local powerBackground
 local titleScreen
 local symbolFont
 local gameFont
+local gameFontSm
 local cthulhuBar
 local scrollBar
 local frame
@@ -21,10 +22,14 @@ local actions
 local animCounter
 
 local pointTotal
+local incrPerSec
 local cthulhuBarProgress
 local scrollBarXPosition
 local pqAnim
 local cbAnim
+
+local goalNum
+local cbIncr
 
 function C.init()
   
@@ -37,6 +42,7 @@ function C.init()
   scrollBar = lg.newImage("/assets/scrollbar.png")
   symbolFont = lg.newImageFont("/assets/symbol-font.png", "abcdefghijklmnopqrstuvwxyz ")
   gameFont = lg.newFont("/assets/Marhey-Bold.ttf", 26)
+  gameFontSm = lg.newFont("/assets/Marhey-Bold.ttf", 14)
   
   InitButtonQuads()
   InitProgressQuads()
@@ -47,9 +53,13 @@ function C.init()
   
   scrollBarXPosition = 0
   pqAnim = 1
-  cbAnim = 1
+  cbAnim = 0
   animCounter = 1
   pointTotal = 0
+  incrPerSec = 0
+  cthulhuBarProgress = 1
+  goalNum = 10000
+  cbIncr = goalNum / 40
   
   actions = {}
   
@@ -102,11 +112,13 @@ end
 
 function C.update()
   
-  local incrPerSec = 0
+  local incrPerSecTemp = 0
   
   for k, v in pairs(actions) do
     if pointTotal >= v.cost then
       v.isEnabled = true
+    else
+      v.isEnabled = false
     end
     if not v.isEnabled then
       v.modValue = 2
@@ -115,12 +127,15 @@ function C.update()
     else
       v.modValue = 0
     end
-    incrPerSec = incrPerSec + (v.incr * v.numInPlay)
+    incrPerSecTemp = incrPerSecTemp + (v.incr * v.numInPlay)
   end
   
-  T.setIncrPerSec(incrPerSec)
+  incrPerSec = T.setIncrPerSec(incrPerSecTemp)
   
   pointTotal = T.getTotal()
+  
+  cthulhuBarProgress = 1 + (2*math.floor(pointTotal/cbIncr))
+  print(cthulhuBarProgress)
   
   --ANIMATION UPDATES
   
@@ -136,10 +151,10 @@ function C.update()
       pqAnim = 1
     end
   elseif animCounter % 40 == 0 then
-    if cbAnim == 1 then
-      cbAnim = 2
-    else
+    if cbAnim == 0 then
       cbAnim = 1
+    else
+      cbAnim = 0
     end
   end
   
@@ -159,13 +174,15 @@ function C.draw()
   lg.setFont(gameFont)
   lg.setColor(131/255, 49/255, 33/455)
   lg.printf("influence: "..pointTotal, 260, 270, 268, "center")
+  lg.setFont(gameFontSm)
+  lg.printf("+ "..incrPerSec.." per second", 260, 300, 268, "center")
   lg.reset()
   --lg.printf(pointTotal, 454, 272, 268, "left")
   
   lg.draw(scrollBar, scrollBarXPosition, 30)
   lg.draw(scrollBar, scrollBarXPosition+800, 30)
   
-  lg.draw(cthulhuBar, progressQuads[cbAnim], 50, 510)
+  lg.draw(cthulhuBar, progressQuads[cthulhuBarProgress+cbAnim], 50, 510)
   
   lg.draw(frame)
   
