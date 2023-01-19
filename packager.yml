@@ -1,0 +1,5 @@
+name: cthulhu clicker
+version: 0.0.2
+assets:
+  - "*.lua"
+  - assets/**/*

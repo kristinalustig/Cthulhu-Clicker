@@ -90,7 +90,7 @@ function C.init()
   pointTotal = 0
   incrPerSec = 0
   cthulhuBarProgress = 1
-  goalNum = 10
+  goalNum = 10000
   cbIncr = goalNum / 40
   percentIncr = .1
   
@@ -188,7 +188,7 @@ function C.update()
     
     pointTotal = T.getTotal()
     
-    cthulhuBarProgress = math.min(1 + (2*math.floor(pointTotal/cbIncr)), 40)
+    cthulhuBarProgress = math.min(1 + (2*math.floor(pointTotal/cbIncr)), 79)
     
     --ANIMATION UPDATES
     
@@ -258,6 +258,8 @@ function C.draw()
   
   lg.draw(scrollBar, scrollBarXPosition, 30)
   lg.draw(scrollBar, scrollBarXPosition+800, 30)
+  lg.setFont(symbolFont)
+  lg.printf("If you translate this I'm sorry and I wish it were more interesting ", scrollBarXPosition, 54, 1000000, "left")
   
   lg.draw(cthulhuBar, progressQuads[cthulhuBarProgress+cbAnim], 50, 510)
   
